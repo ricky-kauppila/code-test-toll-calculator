@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using TollFeeCalculator;
+﻿namespace TollCalculator;
 
 public class TollCalculator
 {
@@ -19,8 +17,8 @@ public class TollCalculator
         int totalFee = 0;
         foreach (DateTime date in dates)
         {
-            int nextFee = GetTollFee(date, vehicle);
-            int tempFee = GetTollFee(intervalStart, vehicle);
+            int nextFee = this.GetTollFee(date, vehicle);
+            int tempFee = this.GetTollFee(intervalStart, vehicle);
 
             long diffInMillies = date.Millisecond - intervalStart.Millisecond;
             long minutes = diffInMillies/1000/60;
@@ -54,7 +52,7 @@ public class TollCalculator
 
     public int GetTollFee(DateTime date, Vehicle vehicle)
     {
-        if (IsTollFreeDate(date) || IsTollFreeVehicle(vehicle)) return 0;
+        if (this.IsTollFreeDate(date) || this.IsTollFreeVehicle(vehicle)) return 0;
 
         int hour = date.Hour;
         int minute = date.Minute;
