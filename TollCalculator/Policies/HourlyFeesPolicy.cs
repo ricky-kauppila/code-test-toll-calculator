@@ -12,10 +12,10 @@ public class HourlyFeesPolicy : FeesPolicy
         }
 
         var startOfHour = feesArray[0].Pass.DateTime;
-        int hourlySpanStartIndex = 0;
-        int hourlySpanCount = 0;
+        var hourlySpanStartIndex = 0;
+        var hourlySpanCount = 0;
 
-        for (int i = 0; i < feesArray.Length; i++)
+        for (var i = 0; i < feesArray.Length; i++)
         {
             var isLast = i == feesArray.Length - 1;
             var current = feesArray[i];
@@ -30,9 +30,9 @@ public class HourlyFeesPolicy : FeesPolicy
             }
 
             var hourlySpan = new Span<TollFee>(feesArray, hourlySpanStartIndex, hourlySpanCount);
-            for (int j = 0; j < hourlySpan.Length; j++)
+            for (var j = 0; j < hourlySpan.Length; j++)
             {
-                for (int k = 0; k < hourlySpan.Length; k++)
+                for (var k = 0; k < hourlySpan.Length; k++)
                 {
                     if (j != k && hourlySpan[k].Amount >= hourlySpan[j].Amount)
                     {
@@ -51,12 +51,6 @@ public class HourlyFeesPolicy : FeesPolicy
         }
 
         return feesArray;
-    }
-
-    private static TollFee? NextOrDefault(TollFee[] feesArray, int i, out int nextIndex)
-    {
-        nextIndex = i + 1;
-        return feesArray.Length > i + 1 ? feesArray[i + 1] : null;
     }
 
     private bool IsWithinAnHourOfEachOther(DateTime first, DateTime second)

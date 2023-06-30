@@ -14,7 +14,7 @@ public class VehicleTypeExceptionsPolicy : FeePolicy
         return IsTollFreeVehicle(pass.Vehicle) ? TollFee.Free(pass) : next(pass);
     }
 
-    private bool IsTollFreeVehicle(Vehicle vehicle)
+    private bool IsTollFreeVehicle(IVehicle vehicle)
     {
         var vehicleType = vehicle.GetVehicleType();
         return vehicleType.Equals(TollFreeVehicles.Motorbike.ToString()) ||

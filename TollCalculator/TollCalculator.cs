@@ -27,7 +27,7 @@ public class TollCalculator
         feeTimeTable.Add(TimeOnly.Parse("18:00"), TimeOnly.Parse("18:29"), 8.0m);
     }
 
-    public decimal GetTollFee(Vehicle vehicle, DateTime[] dates)
+    public decimal GetTollFee(IVehicle vehicle, DateTime[] dates)
     {
         var passes = dates.Select(d => new Pass(d, vehicle));
 
@@ -39,6 +39,7 @@ public class TollCalculator
                 DateOnly.Parse("2023-12-25"),
                 DateOnly.Parse("2023-12-26"),
                 DateOnly.Parse("2023-12-31"))
+            .WithMonthException(Month.July)
             .WithVehicleException()
             .WithMaxDailyFee(60)
             .AggregateHourly();
@@ -48,7 +49,7 @@ public class TollCalculator
         return fees.Sum(f => f.Amount);
     }
 
-    public decimal GetTollFee(DateTime date, Vehicle vehicle)
+    public decimal GetTollFee(DateTime date, IVehicle vehicle)
     {
         var pass = new Pass(date, vehicle);
 
@@ -60,9 +61,10 @@ public class TollCalculator
                 DateOnly.Parse("2023-12-25"),
                 DateOnly.Parse("2023-12-26"),
                 DateOnly.Parse("2023-12-31"))
+            .WithMonthException(Month.July)
             .WithVehicleException();
 
-        var fees = policies.Run(new[] {pass});
+        var fees = policies.Run(new[] { pass });
 
         return fees.Sum(f => f.Amount);
     }

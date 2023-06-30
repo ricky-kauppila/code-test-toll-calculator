@@ -1,10 +1,8 @@
 ﻿namespace TollCalculator
 {
-    using System;
-
-    public class Car : Vehicle
+    public class Car : IVehicle
     {
-        public String GetVehicleType()
+        public string GetVehicleType()
         {
             return "Car";
         }

@@ -2,7 +2,7 @@
 
 namespace TollCalculator.Tests;
 
-public class HourlyFeeAggregatorTests
+public class HourlyFeesPolicyTests
 {
     private HourlyFeesPolicy policy;
 
