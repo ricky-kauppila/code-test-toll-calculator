@@ -1,7 +1,10 @@
 ﻿namespace TollCalculator;
 
+using global::TollCalculator.Policies;
+
 public class TollCalculator
 {
+    private readonly FeeTimeTable feeTimeTable;
 
     /**
      * Calculate the total toll fee for one day
@@ -10,97 +13,57 @@ public class TollCalculator
      * @param dates   - date and time of all passes on one day
      * @return - the total toll fee for that day
      */
-
-    public int GetTollFee(Vehicle vehicle, DateTime[] dates)
+    public TollCalculator()
     {
-        DateTime intervalStart = dates[0];
-        int totalFee = 0;
-        foreach (DateTime date in dates)
-        {
-            int nextFee = this.GetTollFee(date, vehicle);
-            int tempFee = this.GetTollFee(intervalStart, vehicle);
-
-            long diffInMillies = date.Millisecond - intervalStart.Millisecond;
-            long minutes = diffInMillies/1000/60;
-
-            if (minutes <= 60)
-            {
-                if (totalFee > 0) totalFee -= tempFee;
-                if (nextFee >= tempFee) tempFee = nextFee;
-                totalFee += tempFee;
-            }
-            else
-            {
-                totalFee += nextFee;
-            }
-        }
-        if (totalFee > 60) totalFee = 60;
-        return totalFee;
+        this.feeTimeTable = new FeeTimeTable(0);
+        feeTimeTable.Add(TimeOnly.Parse("06:00"), TimeOnly.Parse("06:29"), 8.0m);
+        feeTimeTable.Add(TimeOnly.Parse("06:30"), TimeOnly.Parse("06:59"), 13.0m);
+        feeTimeTable.Add(TimeOnly.Parse("07:00"), TimeOnly.Parse("07:59"), 18.0m);
+        feeTimeTable.Add(TimeOnly.Parse("08:00"), TimeOnly.Parse("08:29"), 13.0m);
+        feeTimeTable.Add(TimeOnly.Parse("08:30"), TimeOnly.Parse("14:59"), 8.0m);
+        feeTimeTable.Add(TimeOnly.Parse("15:00"), TimeOnly.Parse("15:29"), 13.0m);
+        feeTimeTable.Add(TimeOnly.Parse("15:30"), TimeOnly.Parse("16:59"), 18.0m);
+        feeTimeTable.Add(TimeOnly.Parse("17:00"), TimeOnly.Parse("17:59"), 13.0m);
+        feeTimeTable.Add(TimeOnly.Parse("18:00"), TimeOnly.Parse("18:29"), 8.0m);
     }
 
-    private bool IsTollFreeVehicle(Vehicle vehicle)
+    public decimal GetTollFee(Vehicle vehicle, DateTime[] dates)
     {
-        if (vehicle == null) return false;
-        String vehicleType = vehicle.GetVehicleType();
-        return vehicleType.Equals(TollFreeVehicles.Motorbike.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Tractor.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Emergency.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Diplomat.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Foreign.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Military.ToString());
+        var passes = dates.Select(d => new Pass(d, vehicle));
+
+        var policies = new PolicyBuilder()
+            .WithFees(feeTimeTable)
+            .WithWeekdayExceptions(DayOfWeek.Saturday, DayOfWeek.Sunday)
+            .WithDateExceptions(
+                DateOnly.Parse("2023-12-24"),
+                DateOnly.Parse("2023-12-25"),
+                DateOnly.Parse("2023-12-26"),
+                DateOnly.Parse("2023-12-31"))
+            .WithVehicleException()
+            .WithMaxDailyFee(60)
+            .AggregateHourly();
+
+        var fees = policies.Run(passes);
+
+        return fees.Sum(f => f.Amount);
     }
 
-    public int GetTollFee(DateTime date, Vehicle vehicle)
+    public decimal GetTollFee(DateTime date, Vehicle vehicle)
     {
-        if (this.IsTollFreeDate(date) || this.IsTollFreeVehicle(vehicle)) return 0;
+        var pass = new Pass(date, vehicle);
 
-        int hour = date.Hour;
-        int minute = date.Minute;
+        var policies = new PolicyBuilder()
+            .WithFees(feeTimeTable)
+            .WithWeekdayExceptions(DayOfWeek.Saturday, DayOfWeek.Sunday)
+            .WithDateExceptions(
+                DateOnly.Parse("2023-12-24"),
+                DateOnly.Parse("2023-12-25"),
+                DateOnly.Parse("2023-12-26"),
+                DateOnly.Parse("2023-12-31"))
+            .WithVehicleException();
 
-        if (hour == 6 && minute >= 0 && minute <= 29) return 8;
-        else if (hour == 6 && minute >= 30 && minute <= 59) return 13;
-        else if (hour == 7 && minute >= 0 && minute <= 59) return 18;
-        else if (hour == 8 && minute >= 0 && minute <= 29) return 13;
-        else if (hour >= 8 && hour <= 14 && minute >= 30 && minute <= 59) return 8;
-        else if (hour == 15 && minute >= 0 && minute <= 29) return 13;
-        else if (hour == 15 && minute >= 0 || hour == 16 && minute <= 59) return 18;
-        else if (hour == 17 && minute >= 0 && minute <= 59) return 13;
-        else if (hour == 18 && minute >= 0 && minute <= 29) return 8;
-        else return 0;
-    }
+        var fees = policies.Run(new[] {pass});
 
-    private Boolean IsTollFreeDate(DateTime date)
-    {
-        int year = date.Year;
-        int month = date.Month;
-        int day = date.Day;
-
-        if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday) return true;
-
-        if (year == 2013)
-        {
-            if (month == 1 && day == 1 ||
-                month == 3 && (day == 28 || day == 29) ||
-                month == 4 && (day == 1 || day == 30) ||
-                month == 5 && (day == 1 || day == 8 || day == 9) ||
-                month == 6 && (day == 5 || day == 6 || day == 21) ||
-                month == 7 ||
-                month == 11 && day == 1 ||
-                month == 12 && (day == 24 || day == 25 || day == 26 || day == 31))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private enum TollFreeVehicles
-    {
-        Motorbike = 0,
-        Tractor = 1,
-        Emergency = 2,
-        Diplomat = 3,
-        Foreign = 4,
-        Military = 5
+        return fees.Sum(f => f.Amount);
     }
 }

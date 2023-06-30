@@ -100,7 +100,7 @@ public class TollCalculatorTests
             DateTime.Parse("2023-06-28 08:02"), // 13
             DateTime.Parse("2023-06-28 09:03"), // 8
             DateTime.Parse("2023-06-28 10:04"), // 8
-            DateTime.Parse("2023-06-28 11:05")  // 8
+            DateTime.Parse("2023-06-28 11:05") // 8
         };
 
         var vehicle = new Car();
