@@ -12,8 +12,8 @@ public class TollCalculatorTests
 
     [TestCase("2023-06-24 08:00", TestName = "{m}(Saturday)")]
     [TestCase("2023-06-25 08:00", TestName = "{m}(Sunday)")]
+    [TestCase("2023-12-24 08:00", TestName = "{m}(Day before public holiday)")]
     [TestCase("2023-12-25 08:00", TestName = "{m}(Public holiday)")]
-    [TestCase("2023-12-25 08:00", TestName = "{m}(Day before public holiday)")]
     [TestCase("2023-07-03 08:00", TestName = "{m}(Month of July)")]
     public void GetTollFee_WhenWithinTollFreeTimeRange_ReturnsZero(string dateAndTime)
     {
