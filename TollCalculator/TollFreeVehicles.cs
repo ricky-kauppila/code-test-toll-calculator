@@ -1,12 +1,5 @@
 ﻿namespace TollCalculator
 {
-    using System;
-
-    public interface IVehicle
-    {
-        string GetVehicleType();
-    }
-
     public enum TollFreeVehicles
     {
         Motorbike = 0,

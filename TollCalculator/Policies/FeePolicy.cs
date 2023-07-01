@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TollCalculator.Policies;
+﻿namespace TollCalculator.Policies;
 
 public abstract class FeePolicy
 {

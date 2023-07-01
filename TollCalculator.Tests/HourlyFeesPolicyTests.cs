@@ -13,7 +13,7 @@ public class HourlyFeesPolicyTests
     }
 
     [Test]
-    public void Aggregate_GivenTollPasses_()
+    public void Apply_GivenTollPasses_WhenMultiplePassesWithinHour_UsesTheHighestFeeWithinEachHour()
     {
         // Arrange
         var tollFees = new TollFee[]
