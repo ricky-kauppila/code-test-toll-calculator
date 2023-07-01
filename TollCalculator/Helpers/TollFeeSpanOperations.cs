@@ -6,15 +6,25 @@ public class TollFeeSpanOperations
 {
     public static void KeepOnlyHighestFee(Span<TollFee> feeSpan)
     {
-        for (var j = 0; j < feeSpan.Length; j++)
+        if (feeSpan.IsEmpty)
         {
-            for (var k = 0; k < feeSpan.Length; k++)
+            return;
+        }
+
+        var highestFee = (Amount: feeSpan[0].Amount, Index: 0);
+
+        for (var i = 1; i < feeSpan.Length; i++)
+        {
+            var current = feeSpan[i];
+            if (current.Amount <= highestFee.Amount)
             {
-                if (j != k && feeSpan[k].Amount >= feeSpan[j].Amount)
-                {
-                    feeSpan[j] = TollFee.Free(feeSpan[j].Pass);
-                }
+                feeSpan[i] = TollFee.Free(feeSpan[i].Pass);
+                continue;
             }
+
+            feeSpan[highestFee.Index] = TollFee.Free(feeSpan[highestFee.Index].Pass);
+
+            highestFee = (current.Amount, i);
         }
     }
 
@@ -27,7 +37,7 @@ public class TollFeeSpanOperations
         {
             var isLast = i == fees.Length - 1;
             var current = fees[i];
-            
+
             if (spanStartDateTime.IsWithinSpanOf(current.Pass.DateTime, timeSpan))
             {
                 spanCount++;

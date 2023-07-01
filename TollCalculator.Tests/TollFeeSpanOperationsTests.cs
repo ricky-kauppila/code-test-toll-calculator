@@ -56,9 +56,9 @@ public class TollFeeSpanOperationsTests
         TollFeeSpanOperations.KeepOnlyHighestFee(fees);
 
         // Assert
-        Assert.That(fees[0].Amount, Is.EqualTo(0));
+        Assert.That(fees[0].Amount, Is.EqualTo(10));
         Assert.That(fees[1].Amount, Is.EqualTo(0));
-        Assert.That(fees[2].Amount, Is.EqualTo(10));
+        Assert.That(fees[2].Amount, Is.EqualTo(0));
     }
 
     [Test]
